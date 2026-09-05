@@ -1,6 +1,6 @@
 [package]
 name = "fizz"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "GPL-2.0-or-later"
 keywords = ["wallet","evm","solana","tui","cli"]
@@ -12,6 +12,7 @@ categories = ["command-line-utilities","cryptocurrency"]
 alloy = "2.4.1"
 anyhow = "1.0.104"
 async-trait = "0.1.92"
+clap = { version = "4.6.6", features = ["derive"] }
 reqwest = "0.13.4"
 serde = { version = "1.0.229", features = ["derive"] }
 solana-sdk = "4.1.0"
