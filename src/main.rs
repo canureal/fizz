@@ -4,9 +4,7 @@ use fizz::Args;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let args = Args::parse(); 
-    let chain = &args.chain; 
-    dbg!(chain);
-
+    let args = Args::parse();
+    args.run().await?;
     Ok(())
 }

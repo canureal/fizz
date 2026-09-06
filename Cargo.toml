@@ -17,4 +17,3 @@ reqwest = "0.13.4"
 serde = { version = "1.0.229", features = ["derive"] }
 solana-sdk = "4.1.0"
 tokio = { version = "1.53.1", features = ["full"] }
-tui-textarea = "0.7.0"
