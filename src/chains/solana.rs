@@ -11,6 +11,7 @@ pub struct SolanaAccount {
 pub struct Balance {
     pub public_address: String,
     pub balance: u64,
+    pub net: String,
 }
 
 impl TryFrom<(Address,Net)> for SolanaAccount {
@@ -32,7 +33,8 @@ impl SolanaAccount {
         let balance: u64 = 12;
         Ok(Balance {
             public_address: self.address.to_string(),
-            balance: balance 
+            balance: balance,
+            net: self.net.to_string(), 
         })  
     }       
 }

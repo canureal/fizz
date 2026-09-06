@@ -66,7 +66,7 @@ impl Args {
         let acc = SolanaAccount::try_from((self.addr, self.net))?;
         let balance = acc.get_balance().await?;
     
-        println!("Address: {}\n Balance: {}", balance.public_address, balance.balance);
+        println!("Address: {}\nBalance: {}\nNet: {}", balance.public_address, balance.balance, balance.net);
         Ok(())
     }
 
