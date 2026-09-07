@@ -15,18 +15,6 @@ pub enum Address {
     SolFormat(String),
 }
 
-impl std::str::FromStr for Address {
-    type Err = String;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.starts_with("0x") {
-            Ok(Address::EvmFormat(s.to_string()))
-        } else {
-            // this ain't a good format testing but for now, we can tolerate.
-            Ok(Address::SolFormat(s.to_string()))
-        }
-    }
-}
-
 #[derive(Debug,PartialEq,Clone,clap::ValueEnum)]
 pub enum Net {
     #[value(name = "devnet")]
@@ -45,6 +33,7 @@ pub struct Args {
     pub addr: Address,
     #[arg(short,long, default_value = "mainnet")]
     pub net: Net  
+    // work as fizz --chain <address> --net(optional actually) mainnet
 }
 
 impl Args {
@@ -71,7 +60,7 @@ impl Args {
     }
 
     async fn run_evm(&self) -> anyhow::Result<()> {
-        println!("on {}, {}", &self.chain, &self.addr); 
+        println!("on {}, {}", self.chain, self.addr); 
         Ok(())
     }
 }
@@ -103,3 +92,19 @@ impl std::fmt::Display for Net {
         }
     }
 }
+
+//
+impl std::str::FromStr for Address {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.starts_with("0x") {
+            Ok(Address::EvmFormat(s.to_string()))
+        } else {
+            // this ain't a good format testing but for now, we can tolerate.
+            Ok(Address::SolFormat(s.to_string()))
+        }
+    }
+}
+
+
+
