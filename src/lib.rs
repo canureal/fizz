@@ -1,12 +1,16 @@
 mod chains;
+use colored::Colorize;
+use comfy_table::{Table, Cell, Color};
 use chains::solana::SolanaAccount;
 use clap::Parser;
+
+use crate::chains::eth::EthAccount;
 
 
 #[derive(Debug,PartialEq,Clone,clap::ValueEnum)]
 pub enum Chain {
     Solana,
-    Evm,
+    Eth,
 }
 
 #[derive(PartialEq,Clone,)]
@@ -37,31 +41,49 @@ pub struct Args {
 }
 
 impl Args {
-    pub async fn run(self) -> anyhow::Result<()> {
+    pub async fn run(self) -> anyhow::Result<Table> {
         let valid = matches!(
             (&self.chain, &self.addr),
-            (Chain::Solana, Address::SolFormat(_)) | (Chain::Evm, Address::EvmFormat(_))
+            (Chain::Solana, Address::SolFormat(_)) | (Chain::Eth, Address::EvmFormat(_))
         );
         if !valid {
-            anyhow::bail!("chain and address does not comply");
+            anyhow::bail!("chain and address does not comply".red());
         }
         match self.chain {
-            Chain::Solana => self.run_sol().await,
-            Chain::Evm => self.run_evm().await,
+            Chain::Solana => self.run_sol().await, 
+            Chain::Eth => self.run_evm().await,
         }
     }
 
-    async fn run_sol(self) -> anyhow::Result<()> {
+    async fn run_sol(self) -> anyhow::Result<Table> {
         let acc = SolanaAccount::try_from((self.addr, self.net))?;
         let balance = acc.get_balance().await?;
-    
-        println!("Address: {}\nBalance: {}\nNet: {}", balance.public_address, balance.balance, balance.net);
-        Ok(())
+        let mut table = Table::new();
+        table
+            .set_header(vec!["Address", "Balance(SOL)", "network"])
+            .add_row(vec![
+                Cell::new(balance.public_address).fg(Color::Magenta),
+                Cell::new(balance.balance.to_string()).fg(Color::Magenta),
+                Cell::new(balance.net).fg(Color::Magenta),
+            ]);
+
+        Ok(table)
     }
 
-    async fn run_evm(&self) -> anyhow::Result<()> {
-        println!("on {}, {}", self.chain, self.addr); 
-        Ok(())
+    async fn run_evm(self) -> anyhow::Result<Table> {
+        let acc = EthAccount::try_from((self.addr,self.net))?;
+        let balance = acc.get_eth_balance().await?;
+        let mut table = Table::new();
+        
+        table
+            .set_header(vec!["Address", "Balance(Eth)","network"])
+            .add_row(vec![
+                Cell::new(balance.public_address).fg(Color::Blue),
+                Cell::new(balance.balance.to_string()).fg(Color::Blue),
+                Cell::new(balance.net).fg(Color::Blue),                
+            ]); 
+
+        Ok(table)
     }
 }
 
@@ -71,7 +93,7 @@ impl std::fmt::Display for Chain {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Chain::Solana => write!(f, "solana"),
-            Chain::Evm => write!(f, "evm"),
+            Chain::Eth => write!(f, "evm"),
         }
     }
 }

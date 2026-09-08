@@ -1,10 +1,15 @@
+use colored::Colorize;
+use rust_decimal::Decimal;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_pubkey::Pubkey;
 use bs58;
-use crate::Net;
-use crate::Address;
+use crate::{
+    Address,
+    Net,
+    chains::{Balance}
+};
 
-const LAMPORTS_PER_SOL: f64 = 1_000_000_000.0;
+const LAMPORTS_PER_SOL: u64 = 1_000_000_000;
 
 
 #[derive(Debug,PartialEq,Clone)]
@@ -13,12 +18,6 @@ pub struct SolanaAccount {
     net: Net,
 }
 
-#[derive(Debug,PartialEq,Clone)]
-pub struct Balance {
-    pub public_address: String,
-    pub balance: f64,
-    pub net: String,
-}
 
 impl TryFrom<(Address,Net)> for SolanaAccount {
     type Error = anyhow::Error; 
@@ -26,16 +25,15 @@ impl TryFrom<(Address,Net)> for SolanaAccount {
         match addr {
             Address::SolFormat(s) => Ok(SolanaAccount {
                 address: s,
-                // this one was 'net: net', now i changed it to net straightly for clean code?
                 net, 
             }),
-            Address::EvmFormat(_) => anyhow::bail!("evm type! not solana!"),
+            Address::EvmFormat(_) => anyhow::bail!("evm type! not solana!".magenta()),
         }
     }
 }
 
-fn convert_to_sol(lamport: u64) -> f64 {
-    lamport as f64 / LAMPORTS_PER_SOL
+fn convert_to_sol(lamport: u64) -> anyhow::Result<Decimal> {
+    Ok(Decimal::from(lamport) / Decimal::from(LAMPORTS_PER_SOL))
 }
 
 impl SolanaAccount {
@@ -60,7 +58,7 @@ impl SolanaAccount {
 
         Ok(Balance {
             public_address: self.address.to_string(),
-            balance: convert_to_sol(lamports),
+            balance: convert_to_sol(lamports)?,
             net: self.net.to_string()
         })  
     }       

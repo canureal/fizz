@@ -5,6 +5,7 @@ use fizz::Args;
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
-    args.run().await?;
+    let table = args.run().await?;
+    println!("{table}"); 
     Ok(())
 }
